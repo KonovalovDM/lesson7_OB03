@@ -1,3 +1,7 @@
+# для сохранения и загрузки используем стандартный модуль "pickle"
+import pickle
+
+
 # Создаем базовый класс
 class Animal():
     def __init__(self, name, age):
@@ -8,7 +12,7 @@ class Animal():
         pass
 
     def eat(self):
-        print(f'{self.name} принимает пищу (любит покушать :)') #продемонстрируем полиморфизм через принт
+        print(f'{self.name} принимает пищу (любит покушать :)') # демонстрируем полиморфизм через принт
 
 # Наследование: создаем классы птиц, млекопитающих и рептилий
 class Bird(Animal):
@@ -40,7 +44,21 @@ class Zoo():
 
     def add_employee(self, employee):
         self.employees.append(employee)
-        print(f"{employee.name} добавлен в сотрудники зоопарка")
+        print(f"\n{employee.name} добавлен в сотрудники зоопарка")
+
+# Метод для сохранения состояния зоопарка в файл
+    def save_state(self, filename):
+        with open(filename, 'wb') as file:
+            pickle.dump(self, file)
+        print("\nСостояние зоопарка сохранено в файл.\n")
+
+    # Метод для загрузки состояния зоопарка из файла
+    @staticmethod
+    def load_state(filename):
+        with open(filename, 'rb') as file:
+            zoo = pickle.load(file)
+        print("\nСостояние зоопарка загружено из файла.\n")
+        return zoo
 
 # Специфические методы для сотрудников
 class ZooKeeper:
@@ -48,14 +66,14 @@ class ZooKeeper:
         self.name = name
 
     def feeds_animal(self, animal):
-        print(f"{self.name} кормит {animal.name}")
+        print(f"\n{self.name} кормит {animal.name}")
 
 class Veterinarian:
     def __init__(self, name):
         self.name = name
 
     def heals_animal(self, animal):
-        print(f"{self.name} лечит {animal.name}")
+        print(f"\n{self.name} лечит {animal.name}")
 
 # Создаем экземпляры классов животных
 animals = [
@@ -77,11 +95,17 @@ for animal in animals:
 zoo.add_employee(zookeeper)
 zoo.add_employee(veterinarian)
 
+# Сохраняем состояние зоопарка
+zoo.save_state('zoo_state.pkl')
+
+# Загрузим состояние зоопарка
+loaded_zoo = Zoo.load_state('zoo_state.pkl')
+
 # Продемонстрируем полиморфизм
-animal_sounds(animals)
+animal_sounds(loaded_zoo.animals)
 
-animals[1].eat()
+loaded_zoo.animals[1].eat()
 
-ZooKeeper.feeds_animal(zookeeper, animals[1])
+ZooKeeper.feeds_animal(loaded_zoo.employees[0], loaded_zoo.animals[1])
 
-Veterinarian.heals_animal(veterinarian, animals[2])
+Veterinarian.heals_animal(loaded_zoo.employees[1], loaded_zoo.animals[2])
